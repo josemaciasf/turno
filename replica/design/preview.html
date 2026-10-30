@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turno design system</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* Static preview of the primitives in components.md. Plain CSS over the
+     tokens; the app builds the same parts as React components. */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-surface); color: var(--color-text);
+         font: var(--weight-base) var(--text-base)/var(--leading-base) var(--font-sans); }
+  main { max-width: var(--layout-content-max); margin: 0 auto; padding: var(--space-7) var(--space-4); }
+  h1 { font-size: var(--text-xl); line-height: var(--leading-xl); margin: 0 0 var(--space-2); }
+  h2 { font-size: var(--text-lg); line-height: var(--leading-lg); margin: var(--space-7) 0 var(--space-4); }
+  p.lead { color: var(--color-text-muted); margin: 0; }
+  .card { background: var(--color-surface-raised); border: 1px solid var(--color-border);
+          border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--space-6); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+  .btn { font: 600 var(--text-sm)/var(--leading-sm) var(--font-sans); height: 40px; padding: 0 var(--space-4);
+         border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer;
+         transition: background var(--motion-fast) var(--motion-ease); }
+  .btn.primary { background: var(--color-accent); color: var(--color-on-accent); }
+  .btn.primary:hover { background: var(--color-accent-hover); }
+  .btn.secondary { background: var(--color-bg); color: var(--color-text); border-color: var(--color-border-input); }
+  .btn.ghost { background: transparent; color: var(--color-text); }
+  .btn.ghost:hover { background: var(--color-surface); }
+  .btn.danger { background: var(--color-danger); color: var(--color-on-danger); }
+  .btn.sm { height: 32px; } .btn.lg { height: 48px; }
+  .btn[disabled] { opacity: .4; cursor: not-allowed; }
+
+  label { display: block; font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-1); }
+  .input { font: var(--text-base)/var(--leading-base) var(--font-sans); height: 40px; padding: 0 var(--space-3);
+           border: 1px solid var(--color-border-input); border-radius: var(--radius-md); background: var(--color-bg);
+           color: var(--color-text); width: 100%; }
+  .input:focus-visible { border-color: var(--color-focus); outline-offset: 0; }
+  .input.error { border-color: var(--color-danger); }
+  .help { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1); }
+  .help.error { color: var(--color-danger); }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); }
+
+  .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 var(--space-2);
+           border-radius: var(--radius-pill); font-size: var(--text-xs); font-weight: 500; }
+  .b-pending { background: var(--color-warning-soft); color: var(--color-warning); }
+  .b-approved { background: var(--color-success-soft); color: var(--color-success); }
+  .b-denied { background: var(--color-danger-soft); color: var(--color-danger); }
+  .b-invited { background: var(--color-info-soft); color: var(--color-info); }
+
+  .banner { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md); font-size: var(--text-sm); }
+  .banner.warning { background: var(--color-warning-soft); color: var(--color-warning); }
+  .banner.danger { background: var(--color-danger-soft); color: var(--color-danger); }
+  .banner .btn { margin-left: auto; }
+
+  .grid-wrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+               background: var(--color-bg); }
+  table.grid { border-collapse: collapse; width: 100%; min-width: 1000px; }
+  .grid th, .grid td { border-bottom: 1px solid var(--color-border); border-right: 1px solid var(--color-border);
+                       padding: var(--space-2); vertical-align: top; text-align: left; }
+  .grid thead th { font-size: var(--text-xs); color: var(--color-text-muted); font-weight: 600; background: var(--color-surface); }
+  .grid th.person { width: var(--layout-grid-name-col); position: sticky; left: 0; background: var(--color-bg); z-index: 1;
+                    font-size: var(--text-sm); }
+  .grid thead th.person { background: var(--color-surface); }
+  .grid .sub { display: block; font-weight: 400; font-size: var(--text-xs); color: var(--color-text-muted); }
+  .grid tfoot td, .grid tfoot th { background: var(--color-surface); font-size: var(--text-xs); color: var(--color-text-muted); }
+  .shift { border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2); min-height: var(--layout-shift-card-min-h);
+           font-size: var(--text-xs); border-left: 3px solid currentColor; }
+  .shift b { display: block; font-size: var(--text-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .r1 { background: var(--color-role-1); color: var(--color-role-1-text); }
+  .r2 { background: var(--color-role-2); color: var(--color-role-2-text); }
+  .r3 { background: var(--color-role-3); color: var(--color-role-3-text); }
+  .r4 { background: var(--color-role-4); color: var(--color-role-4-text); }
+  .shift.open { background: var(--color-bg); color: var(--color-text-muted); border: 1px dashed var(--color-border-input); }
+  .shift.conflict { outline: 2px solid var(--color-warning); }
+  .off { border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2); font-size: var(--text-xs);
+         color: var(--color-text-muted);
+         background: repeating-linear-gradient(135deg, var(--color-surface) 0 6px, var(--color-bg) 6px 12px); }
+
+  .kiosk { background: var(--color-kiosk-bg); color: var(--color-kiosk-text); border-radius: var(--radius-lg);
+           padding: var(--space-7); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-7); }
+  .kiosk .clock { font-size: var(--text-kiosk-clock); line-height: var(--leading-kiosk-clock); font-weight: 700;
+                  font-variant-numeric: tabular-nums; }
+  .kiosk .muted { color: var(--color-kiosk-muted); }
+  .dots { display: flex; gap: var(--space-3); margin: var(--space-4) 0; }
+  .dots span { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--color-kiosk-text); }
+  .dots span.on { background: var(--color-kiosk-text); }
+  .keys { display: grid; grid-template-columns: repeat(3, var(--layout-kiosk-key)); gap: var(--space-3); }
+  .keys button { height: var(--layout-kiosk-key); border-radius: var(--radius-lg); border: 0; cursor: pointer;
+                 background: #ffffff1a; color: var(--color-kiosk-text); font: 700 var(--text-xl) var(--font-sans); }
+  .clockbtn { width: 100%; height: 64px; border: 0; border-radius: var(--radius-lg); cursor: pointer;
+              font: 600 var(--text-lg) var(--font-sans); color: var(--color-on-clock); }
+  .clockbtn.in { background: var(--color-clock-in); } .clockbtn.out { background: var(--color-clock-out); }
+
+  .phone { width: 360px; max-width: 100%; background: var(--color-bg); border: 1px solid var(--color-border);
+           border-radius: 28px; padding: var(--space-5); box-shadow: var(--shadow-pop); }
+  .phone .timer { font-size: var(--text-display); line-height: var(--leading-display); font-weight: 700;
+                  font-variant-numeric: tabular-nums; text-align: center; margin: var(--space-4) 0; }
+  .note { font-size: var(--text-sm); color: var(--color-warning); margin-top: var(--space-2); }
+  .toast { display: inline-flex; gap: var(--space-4); align-items: center; background: var(--color-text);
+           color: var(--color-text-inverse); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+           box-shadow: var(--shadow-pop); font-size: var(--text-sm); }
+  .toast button { background: none; border: 0; color: var(--color-text-inverse); font-weight: 600; text-decoration: underline; cursor: pointer; }
+  .request { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+  .request .who { flex: 1 1 160px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+            font-weight: 600; font-size: var(--text-sm); }
+  .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-6); }
+  @media (max-width: 767px) {
+    .kiosk { grid-template-columns: 1fr; }
+    .grid th.person { width: 132px; }
+    .banner .btn { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Turno design system</h1>
+  <p class="lead">Placeholder palette until /replica-brand. Every text pair passes WCAG AA (contrast.py: 34 pairs, 0 failing).</p>
+
+  <h2>Buttons</h2>
+  <div class="card row">
+    <button class="btn primary">Publish schedule</button>
+    <button class="btn secondary">Copy last week</button>
+    <button class="btn ghost">Cancel</button>
+    <button class="btn danger">Delete shift</button>
+    <button class="btn primary sm">Small</button>
+    <button class="btn primary lg">Large</button>
+    <button class="btn primary" disabled>Disabled</button>
+  </div>
+
+  <h2>Inputs</h2>
+  <div class="card fields">
+    <div><label for="n">Full name</label><input id="n" class="input" value="Ana Torres"></div>
+    <div><label for="p">Mobile phone</label><input id="p" class="input" inputmode="tel" placeholder="(555) 010-0000"><div class="help">We text the invite here.</div></div>
+    <div><label for="w">Hourly wage</label><input id="w" class="input error tnum" value="-4" aria-invalid="true" aria-describedby="we"><div id="we" class="help error">Wage can't be negative.</div></div>
+  </div>
+
+  <h2>Status</h2>
+  <div class="card">
+    <div class="row">
+      <span class="badge b-pending">Pending</span><span class="badge b-approved">Approved</span>
+      <span class="badge b-denied">Denied</span><span class="badge b-invited">Invited</span>
+    </div>
+    <div style="height:16px"></div>
+    <div class="banner warning"><strong>Unpublished changes.</strong> 4 shifts changed since you last published. <button class="btn primary sm">Publish</button></div>
+    <div style="height:8px"></div>
+    <div class="banner danger"><strong>3 timecards need attention</strong> before you can export this pay period.</div>
+  </div>
+
+  <h2>Schedule grid</h2>
+  <div class="grid-wrap">
+    <table class="grid" role="grid" aria-label="Schedule, week of Nov 2">
+      <thead><tr>
+        <th class="person" scope="col">Week of Nov 2</th>
+        <th scope="col">Mon 2<span class="sub tnum">24h · $412</span></th>
+        <th scope="col">Tue 3<span class="sub tnum">16h · $280</span></th>
+        <th scope="col">Wed 4<span class="sub tnum">22h · $371</span></th>
+        <th scope="col">Thu 5<span class="sub tnum">16h · $280</span></th>
+        <th scope="col">Fri 6<span class="sub tnum">30h · $520</span></th>
+        <th scope="col">Sat 7<span class="sub tnum">32h · $548</span></th>
+        <th scope="col">Sun 8<span class="sub tnum">0h</span></th>
+      </tr></thead>
+      <tbody>
+        <tr><th class="person" scope="row">Ana Torres<span class="sub tnum">Cook · 38h</span></th>
+          <td><div class="shift r1"><b>9:00–17:00</b>Cook · 30m break</div></td>
+          <td><div class="shift r1"><b>9:00–17:00</b>Cook</div></td>
+          <td><div class="off">Time off</div></td>
+          <td><div class="shift r1"><b>9:00–17:00</b>Cook</div></td>
+          <td><div class="shift r1 conflict"><b>12:00–20:00</b>Cook · ⚠ overtime</div></td>
+          <td></td><td></td></tr>
+        <tr><th class="person" scope="row">Luis Pérez<span class="sub tnum">Server · 24h</span></th>
+          <td><div class="shift r2"><b>16:00–22:00</b>Server</div></td>
+          <td></td>
+          <td><div class="shift r2"><b>16:00–22:00</b>Server</div></td>
+          <td></td>
+          <td><div class="shift r2"><b>17:00–23:00</b>Server</div></td>
+          <td><div class="shift r2"><b>17:00–23:00</b>Server</div></td><td></td></tr>
+        <tr><th class="person" scope="row">Mei Chen<span class="sub tnum">Host · 14h</span></th>
+          <td></td><td></td>
+          <td><div class="shift r3"><b>17:00–21:00</b>Host</div></td>
+          <td></td>
+          <td><div class="shift r4"><b>22:00–6:00</b>Closer · ends next day</div></td>
+          <td><div class="shift r3"><b>17:00–21:00</b>Host</div></td><td></td></tr>
+        <tr><th class="person" scope="row">Open shifts<span class="sub">Anyone can claim</span></th>
+          <td></td><td></td><td></td><td></td><td></td>
+          <td><div class="shift open"><b>10:00–16:00</b>Server · open</div></td><td></td></tr>
+      </tbody>
+      <tfoot><tr><th class="person" scope="row">Labor</th><td colspan="7" class="tnum">140 scheduled hours · $2,411 projected · 24% of sales target</td></tr></tfoot>
+    </table>
+  </div>
+
+  <h2>Time clock</h2>
+  <div class="split">
+    <div class="kiosk" aria-label="Kiosk">
+      <div>
+        <div class="muted">Centro · Monday, Nov 2</div>
+        <div class="clock">8:58</div>
+        <div class="muted">Enter your PIN</div>
+        <div class="dots" aria-label="2 of 4 digits entered"><span class="on"></span><span class="on"></span><span></span><span></span></div>
+      </div>
+      <div class="keys">
+        <button>1</button><button>2</button><button>3</button>
+        <button>4</button><button>5</button><button>6</button>
+        <button>7</button><button>8</button><button>9</button>
+        <button aria-label="Clear">⌫</button><button>0</button><button aria-label="Submit">✓</button>
+      </div>
+    </div>
+    <div class="phone" aria-label="Employee app">
+      <div style="font-weight:600">Hi Ana</div>
+      <div class="help">Today 9:00–17:00 · Cook · Centro</div>
+      <div class="timer">2:14:07</div>
+      <button class="clockbtn out">Clock out</button>
+      <div style="height:8px"></div>
+      <button class="btn secondary lg" style="width:100%">Start break</button>
+      <div class="note">You seem to be away from Centro. This punch will be flagged.</div>
+    </div>
+  </div>
+
+  <h2>Requests and feedback</h2>
+  <div class="split">
+    <div class="card request">
+      <div class="avatar r2">LP</div>
+      <div class="who"><strong>Luis Pérez</strong> · time off<div class="help tnum">Nov 12 – Nov 14 · "Family trip"</div></div>
+      <span class="badge b-pending">Pending</span>
+      <button class="btn secondary sm" aria-label="Deny Luis's time off">Deny</button>
+      <button class="btn primary sm" aria-label="Approve Luis's time off">Approve</button>
+    </div>
+    <div class="card"><div class="toast" role="status">Shift deleted <button>Undo</button></div></div>
+  </div>
+</main>
+</body>
+</html>
